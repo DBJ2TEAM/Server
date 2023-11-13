@@ -1,6 +1,18 @@
 from django.db import models
 
-# Create your models here.
-class User(models.Model):
-    name = models.CharField(max_length=100)
-    student_number = models.CharField(max_length=10)
+class Student(models.Model):
+    name = models.CharField(max_length=255)
+    department = models.CharField(max_length=255)
+    student_id = models.IntegerField(unique=True)
+    year = models.IntegerField()
+
+    def __str__(self):
+        return self.name
+
+class Professor(models.Model):
+    name = models.CharField(max_length=255)
+    department = models.CharField(max_length=255)
+    lab = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.name
