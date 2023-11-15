@@ -2,6 +2,7 @@
   <h2>프로필 페이지</h2>
   {% if user.is_authenticated %}
     <p>안녕하세요, {{ user.username }}님!</p>
+    <p>학번은 {{ user.student.student_id }}입니다.</p>
     <p>학과는 {{ user.student.department }}입니다.</p>
     <a href="{% url 'logout' %}">로그아웃</a>
   {% else %}
