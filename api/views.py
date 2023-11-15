@@ -81,3 +81,5 @@ class LogoutView(APIView):
     def post(self, request):
         request.user.auth_token.delete()
         return Response(status=204)
+def login2_view(request):
+    return render(request, 'login2.html')
