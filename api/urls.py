@@ -10,6 +10,6 @@ router.register('professors', views.ProfessorViewSet)
 urlpatterns = [
     path('', include(router.urls)),
     path('login/', login_view, name='login'),
-    path('register_student/', register_student, name='register_student'),
-    path('register_professor/', register_professor, name='register_professor'),
+    path('profile/', views.profile, name='profile'),
+    path('logout/', views.logout_view, name='logout'),
 ]
