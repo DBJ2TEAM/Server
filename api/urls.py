@@ -17,6 +17,6 @@ urlpatterns = [
     path('login/', login_view, name='login'),
     path('login2/', login2_view, name='login2'),
     path('profile/', views.profile, name='profile'),
-    path('api/professors/', professor_list, name='professor-list'), # 교수님 정보 리스트
+    path('professors_list/', professor_list, name='professor-list'), # 교수님 정보 리스트
     path('api/professors/<int:professor_id>/delete/', delete_professor, name='delete_professor'),
 ]
