@@ -86,22 +86,28 @@ def login2_view(request):
 
 
 
+@csrf_exempt
 def professor_list(request):
-    professors = Professor.objects.all()  # 데이터베이스에서 모든 교수님 정보를 조회합니다.
-    professor_list = []
-    for professor in professors:
-        professor_data = {
-            'id': professor.id,
-            'name': professor.name,
-            'department': professor.department,
-            'email': professor.email,
-            'photo': str(professor.photo),
-            'phone': professor.phone_number,
-            'lab_number': professor.lab_number,
-        }
-        professor_list.append(professor_data)
+    if request.method == 'GET':
+        professors = Professor.objects.all()  # 데이터베이스에서 모든 교수님 정보를 조회합니다.
+        professor_list = []
+        for professor in professors:
+            professor_data = {
+                'id': professor.id,
+                'name': professor.name,
+                'department': professor.department,
+                'email': professor.email,
+                'photo': str(professor.photo),
+                'phone': professor.phone_number,
+                'lab_number': professor.lab_number,
+            }
+            professor_list.append(professor_data)
 
-    return JsonResponse(professor_list, safe=False)
+        return JsonResponse(professor_list, safe=False)
+    elif request.method == 'POST':
+        # POST 요청 처리 로직을 여기에 작성하세요.
+        # 필요에 따라서 프론트엔드에 응답을 보내거나 다른 처리를 수행할 수 있습니다.
+        return JsonResponse({'message': 'POST 요청이 정상적으로 처리되었습니다.'})
 
 def delete_professor(request, professor_id):
     professor = get_object_or_404(Professor, id=professor_id)
