@@ -88,17 +88,16 @@ def login2_view(request):
 
 def professor_list(request):
     professors = Professor.objects.all()  # 데이터베이스에서 모든 교수님 정보를 조회합니다.
-    professor_id = Professor.objects.get(id=professor.id)
     professor_list = []
     for professor in professors:
         professor_data = {
+            'id': professor.id,
             'name': professor.name,
             'department': professor.department,
             'email': professor.email,
             'photo': str(professor.photo),
             'phone': professor.phone_number,
-            'lab_number' : professor.lab_number,
-            'id' : professor_id,
+            'lab_number': professor.lab_number,
         }
         professor_list.append(professor_data)
 
@@ -106,6 +105,5 @@ def professor_list(request):
 
 def delete_professor(request, professor_id):
     professor = get_object_or_404(Professor, id=professor_id)
-    
     professor.delete()
     return HttpResponse("교수 삭제 완료")
