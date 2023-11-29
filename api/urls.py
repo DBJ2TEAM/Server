@@ -1,6 +1,5 @@
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
-from . import views
 from .views import login_view, LogoutView, RegisterStudentView, RegisterProfessorView, login2_view
 from rest_framework.authtoken.views import obtain_auth_token
 
