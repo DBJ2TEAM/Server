@@ -9,7 +9,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from .models import Student, Professor
 from django.contrib.auth import logout
-from django.shortcuts import redirect
+from django.shortcuts import redirect, get_object_or_404
 
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
@@ -88,7 +88,7 @@ def login2_view(request):
 
 def professor_list(request):
     professors = Professor.objects.all()  # 데이터베이스에서 모든 교수님 정보를 조회합니다.
-
+    professor_id = Professor.objects.get(id=professor.id)
     professor_list = []
     for professor in professors:
         professor_data = {
@@ -98,7 +98,14 @@ def professor_list(request):
             'photo': str(professor.photo),
             'phone': professor.phone_number,
             'lab_number' : professor.lab_number,
+            'id' : professor_id,
         }
         professor_list.append(professor_data)
 
     return JsonResponse(professor_list, safe=False)
+
+def delete_professor(request, professor_id):
+    professor = get_object_or_404(Professor, id=professor_id)
+    
+    professor.delete()
+    return HttpResponse("교수 삭제 완료")
