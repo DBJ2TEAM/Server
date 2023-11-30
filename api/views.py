@@ -3,24 +3,27 @@ from .models import Student, Professor
 from .serializers import StudentSerializer, ProfessorSerializer
 from django.shortcuts import render
 from django.contrib.auth import authenticate, login
-from django.http import HttpResponse , JsonResponse
+from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from .models import Student, Professor
 from django.contrib.auth import logout
 from django.shortcuts import redirect, get_object_or_404
+from datetime import timedelta
 
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.decorators import api_view
+from rest_framework_simplejwt.tokens import RefreshToken
 
 
 class StudentViewSet(viewsets.ModelViewSet):
     queryset = Student.objects.all()
     serializer_class = StudentSerializer
+
 
 class ProfessorViewSet(viewsets.ModelViewSet):
     queryset = Professor.objects.all()
@@ -63,17 +66,25 @@ def login_view(request):
     username = request.data.get('username')
     password = request.data.get('password')
     user = authenticate(request, username=username, password=password)
-    
+
     if user is not None:
         login(request, user)
-        token, created = Token.objects.get_or_create(user=user)
-        return Response({'token': token.key})
+        refresh = RefreshToken.for_user(user)
+        return Response({'refresh': str(refresh), 'access': str(refresh.access_token)})
     else:
         return Response({"message": "로그인 실패. 유효하지 않은 사용자명 또는 비밀번호."})
+    
+@api_view(['POST'])
+def refresh_token(request):
+    refresh = request.data.get('refresh')
+    token = RefreshToken(refresh)
+    return Response({'access': str(token.access_token)})
+
 
 @login_required
 def profile(request):
     return render(request, 'profile.html')
+
 
 class LogoutView(APIView):
     permission_classes = [IsAuthenticated]
@@ -81,9 +92,10 @@ class LogoutView(APIView):
     def post(self, request):
         request.user.auth_token.delete()
         return Response(status=204)
+
+
 def login2_view(request):
     return render(request, 'login2.html')
-
 
 
 @csrf_exempt
@@ -108,6 +120,7 @@ def professor_list(request):
         # POST 요청 처리 로직을 여기에 작성하세요.
         # 필요에 따라서 프론트엔드에 응답을 보내거나 다른 처리를 수행할 수 있습니다.
         return JsonResponse({'message': 'POST 요청이 정상적으로 처리되었습니다.'})
+
 
 def delete_professor(request, professor_id):
     professor = get_object_or_404(Professor, id=professor_id)
