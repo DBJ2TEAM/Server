@@ -53,10 +53,11 @@ class RegisterProfessorView(APIView):
         email = request.data.get('email')
         name = request.data.get('name')
         department = request.data.get('department')
-        lab = request.data.get('lab')
-
+        lab_number = request.data.get('lab_number')
+        
         user = User.objects.create_user(username=username, password=password, email=email)
-        professor = Professor.objects.create(name=name, department=department, lab=lab, user=user)
+        professor = Professor.objects.create(name=name, department=department, lab_number=lab_number, user=user)
+
 
         return Response({"message": "교수 계정 생성 성공"})
 
@@ -70,7 +71,14 @@ def login_view(request):
     if user is not None:
         login(request, user)
         refresh = RefreshToken.for_user(user)
-        return Response({'refresh': str(refresh), 'access': str(refresh.access_token)})
+
+        # 사용자의 역할(role)에 따라 다른 메시지를 반환합니다.
+        if hasattr(user, 'student'):
+            return Response({'role': '학생', 'refresh': str(refresh), 'access': str(refresh.access_token)})
+        elif hasattr(user, 'professor'):
+            return Response({'role': '교수', 'refresh': str(refresh), 'access': str(refresh.access_token)})
+        else:
+            return Response({'role': '알 수 없음', 'refresh': str(refresh), 'access': str(refresh.access_token)})
     else:
         return Response({"message": "로그인 실패. 유효하지 않은 사용자명 또는 비밀번호."})
     
