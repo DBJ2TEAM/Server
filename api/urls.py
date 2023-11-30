@@ -1,6 +1,10 @@
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
-from .views import login_view, LogoutView, RegisterStudentView, RegisterProfessorView, login2_view
+from . import views
+from .views import (
+    login_view, LogoutView, RegisterStudentView, RegisterProfessorView, login2_view,
+    professor_list, delete_professor
+)
 from rest_framework.authtoken.views import obtain_auth_token
 
 router = DefaultRouter()
@@ -16,4 +20,6 @@ urlpatterns = [
     path('login/', login_view, name='login'),
     path('login2/', login2_view, name='login2'),
     path('profile/', views.profile, name='profile'),
+    path('api/professors/', professor_list, name='professor-list'),  # 교수님 정보 리스트
+    path('api/professors/<int:professor_id>/delete/', delete_professor, name='delete_professor'),
 ]
