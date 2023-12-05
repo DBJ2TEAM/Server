@@ -27,3 +27,27 @@ class Assistant(models.Model):
     department = models.CharField(max_length=100) #학과
     lab_number = models.CharField(default=0 ,max_length=20) #학과사무실번호
     phone_number = models.CharField(default=0, max_length=20) #번호
+
+
+class TimeTable(models.Model):
+    professor = models.OneToOneField(Professor, on_delete=models.CASCADE)
+    start_time = models.DateTimeField()
+    end_time = models.DateTimeField()
+
+    def __str__(self):
+        return f'{self.professor.name} - {self.start_time} to {self.end_time}'
+
+class Appointment(models.Model):
+    STATUS_CHOICES = (
+        ('REQUESTED', 'Requested'),
+        ('APPROVED', 'Approved'),
+        ('REJECTED', 'Rejected'),
+    )
+    
+    student = models.ForeignKey(Student, on_delete=models.CASCADE)
+    professor = models.ForeignKey(Professor, on_delete=models.CASCADE)
+    time = models.ForeignKey(TimeTable, on_delete=models.CASCADE)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='REQUESTED')
+
+    def __str__(self):
+        return f'{self.student.name} appointment with {self.professor.name} - {self.status}'

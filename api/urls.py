@@ -6,10 +6,14 @@ from .views import (
     professor_list, delete_professor, refresh_token
 )
 from rest_framework.authtoken.views import obtain_auth_token
+from .views import StudentAppointmentViewSet, ProfessorAppointmentViewSet
 
 router = DefaultRouter()
 router.register('students', views.StudentViewSet)
 router.register('professors', views.ProfessorViewSet)
+
+router.register(r'student-appointments', StudentAppointmentViewSet, basename='student-appointment')
+router.register(r'professor-appointments', ProfessorAppointmentViewSet, basename='professor-appointment')
 
 urlpatterns = [
     path('', include(router.urls)),
