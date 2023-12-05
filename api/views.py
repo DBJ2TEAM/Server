@@ -73,12 +73,6 @@ def login_view(request):
         return Response({'refresh': str(refresh), 'access': str(refresh.access_token)})
     else:
         return Response({"message": "로그인 실패. 유효하지 않은 사용자명 또는 비밀번호."})
-    
-@api_view(['POST'])
-def refresh_token(request):
-    refresh = request.data.get('refresh')
-    token = RefreshToken(refresh)
-    return Response({'access': str(token.access_token)})
 
 
 @login_required
