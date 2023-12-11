@@ -197,6 +197,11 @@ class ProfessorAppointmentViewSet(viewsets.ViewSet):
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     def list_by_professor(self, request, professor_id):
-        appointments = Appointment.objects.filter(professor_id=professor_id)
+        appointments = Appointment.objects.filter(professor_id=professor_id, )
         serializer = AppointmentSerializer(appointments, many=True)
+        return Response(serializer.data)
+
+    def list_timetable_by_professor(self, request, professor_id):
+        timetables = TimeTable.objects.filter(professor_id=professor_id)
+        serializer = TimeTableSerializer(timetables, many=True)
         return Response(serializer.data)

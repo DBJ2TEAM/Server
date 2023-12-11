@@ -18,9 +18,10 @@ class AssistantSerializer(serializers.ModelSerializer):
 
 
 class TimeTableSerializer(serializers.ModelSerializer):
+    timetable_id = serializers.ReadOnlyField(source='id')
     class Meta:
         model = TimeTable
-        fields = ['professor', 'start_time', 'end_time']
+        fields = ['timetable_id', 'professor', 'start_time', 'end_time']
 
 class AppointmentSerializer(serializers.ModelSerializer):
     class Meta:
