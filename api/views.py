@@ -1,5 +1,5 @@
 from rest_framework import viewsets
-from .models import Student, Professor
+from .models import Student, Professor, Assistant
 from .serializers import StudentSerializer, ProfessorSerializer
 from django.shortcuts import render
 from django.contrib.auth import authenticate, login
@@ -65,6 +65,21 @@ class RegisterProfessorView(APIView):
 
 
         return Response({"message": "교수 계정 생성 성공"})
+    
+class RegisterAssistantView(APIView):
+    def post(self, request):
+        username = request.data.get('username')
+        password = request.data.get('password')
+        email = request.data.get('email')
+        name = request.data.get('name')
+        department = request.data.get('department')
+        lab_number = request.data.get('lab_number')
+        phone_number = request.data.get('phone_number')  # Add phone_number field
+
+        user = User.objects.create_user(username=username, password=password, email=email)
+        assistant = Assistant.objects.create(name=name, department=department, lab_number=lab_number, phone_number=phone_number, user=user)
+
+        return Response({"message": "조교 계정 생성 성공"})
 
 
 @api_view(['POST'])
@@ -82,6 +97,8 @@ def login_view(request):
             return Response({'role': 'student', 'refresh': str(refresh), 'access': str(refresh.access_token)})
         elif hasattr(user, 'professor'):
             return Response({'role': 'professor', 'refresh': str(refresh), 'access': str(refresh.access_token)})
+        elif hasattr(user, 'assistant'):  # Add handling for Assistant
+            return Response({'role': 'assistant', 'refresh': str(refresh), 'access': str(refresh.access_token)})
         else:
             return Response({'role': '알 수 없음', 'refresh': str(refresh), 'access': str(refresh.access_token)})
     else:

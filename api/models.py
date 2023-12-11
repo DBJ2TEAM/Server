@@ -24,11 +24,14 @@ class Professor(models.Model):
         return self.name
 class Assistant(models.Model):
     name = models.CharField(max_length=100) # 이름
+    user = models.OneToOneField(User, on_delete=models.CASCADE , null=True)
     department = models.CharField(max_length=100) #학과
     lab_number = models.CharField(default=0 ,max_length=20) #학과사무실번호
     phone_number = models.CharField(default=0, max_length=20) #번호
 
-
+    def __str__(self):
+        return self.name
+    
 class TimeTable(models.Model):
     professor = models.OneToOneField(Professor, on_delete=models.CASCADE)
     start_time = models.DateTimeField()
