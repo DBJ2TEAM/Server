@@ -42,10 +42,11 @@ class RegisterStudentView(APIView):
         email = request.data.get('email')
         name = request.data.get('name')
         department = request.data.get('department')
+        student_id = request.data.get('student_id')
         year = request.data.get('year')
 
         user = User.objects.create_user(username=username, password=password, email=email)
-        student = Student.objects.create(name=name, department=department, year=year, user=user)
+        student = Student.objects.create(name=name, department=department, student_id=student_id, year=year, user=user)
 
         return Response({"message": "학생 계정 생성 성공"})
 
@@ -93,9 +94,9 @@ def login_view(request):
 
         # 사용자의 역할(role)에 따라 다른 메시지를 반환합니다.
         if hasattr(user, 'student'):
-            return Response({'role': 'student', 'refresh': str(refresh), 'access': str(refresh.access_token)})
+            return Response({'role': 'student', 'refresh': str(refresh), 'access': str(refresh.access_token), 'id': user.student.id})
         elif hasattr(user, 'professor'):
-            return Response({'role': 'professor', 'refresh': str(refresh), 'access': str(refresh.access_token)})
+            return Response({'role': 'professor', 'refresh': str(refresh), 'access': str(refresh.access_token), 'id': user.professor.id})
         elif hasattr(user, 'assistant'):  # Add handling for Assistant
             return Response({'role': 'assistant', 'refresh': str(refresh), 'access': str(refresh.access_token)})
         else:
