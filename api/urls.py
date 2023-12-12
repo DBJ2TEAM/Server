@@ -33,5 +33,5 @@ urlpatterns = [
     path('api/professors/<int:professor_id>/delete/', delete_professor, name='delete_professor'),  # 교수 계정 삭제
      path('student-appointment/<int:pk>/', StudentAppointmentViewSet.as_view({'put': 'update', 'patch': 'update'}), name='student-appointment-detail'),
     path('student-appointment/professor/<int:professor_id>', StudentAppointmentViewSet.as_view({'get': 'list_by_professor'}), name='professor-appointments-by-professor'),
-
+    path('student-appointment/professor_s/<int:professor_id>', StudentAppointmentViewSet.as_view({'get': 'list_by_professor_s'}), name='professor-appointments-by-professor'),
 ]
