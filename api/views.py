@@ -11,10 +11,10 @@ from .models import Student, Professor
 from django.contrib.auth import logout
 from django.shortcuts import redirect, get_object_or_404
 from datetime import timedelta
-
-from .models import Student, Professor, TimeTable, Appointment
-from .serializers import TimeTableSerializer, AppointmentSerializer
-
+from django.db.models import Q
+from .models import Student, Professor,  Appointment,Room, RoomTimetable, RoomReservation
+from .serializers import  AppointmentSerializer,RoomSerializer, RoomTimetableSerializer, RoomReservationSerializer
+from rest_framework.decorators import action
 
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
@@ -160,7 +160,7 @@ def delete_professor(request, professor_id):
 
 class StudentAppointmentViewSet(viewsets.ViewSet):
     def list(self, request):
-        unavailable_appointments = Appointment.objects.filter(status='APPROVED')
+        unavailable_appointments = Appointment.objects.filter()
         serializer = AppointmentSerializer(unavailable_appointments, many=True)
         return Response(serializer.data)
 
@@ -171,37 +171,27 @@ class StudentAppointmentViewSet(viewsets.ViewSet):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
-class ProfessorAppointmentViewSet(viewsets.ViewSet):
-    def list(self, request):
-        unavailable_appointments = Appointment.objects.filter(status='APPROVED')
-        requested_appointments = Appointment.objects.filter(status='REQUESTED')
-        serializer1 = AppointmentSerializer(unavailable_appointments, many=True)
-        serializer2 = AppointmentSerializer(requested_appointments, many=True)
-        return Response({'unavailable': serializer1.data, 'requested': serializer2.data})
-
-    def create(self, request):
-        # 예약 불가능한 날 설정
-        serializer = TimeTableSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
     def update(self, request, pk=None):
-        # 예약 수락 또는 거절
         appointment = Appointment.objects.get(pk=pk)
         serializer = AppointmentSerializer(appointment, data=request.data, partial=True)
         if serializer.is_valid():
-            serializer.save()
+            if 'status' in request.data and request.data['status'] == 'APPROVED':
+                serializer.save(status='APPROVED')
+            else:
+                serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    def list_by_professor(self, request, professor_id):
-        appointments = Appointment.objects.filter(professor_id=professor_id )
-        serializer = AppointmentSerializer(appointments, many=True)
-        return Response(serializer.data)
 
-    def list_timetable_by_professor(self, request, professor_id):
-        timetables = TimeTable.objects.filter(professor_id=professor_id)
-        serializer = TimeTableSerializer(timetables, many=True)
-        return Response(serializer.data)
+class RoomViewSet(viewsets.ModelViewSet):
+    queryset = Room.objects.all()
+    serializer_class = RoomSerializer
+
+class RoomTimetableViewSet(viewsets.ModelViewSet):
+    queryset = RoomTimetable.objects.all()
+    serializer_class = RoomTimetableSerializer
+
+class RoomReservationViewSet(viewsets.ModelViewSet):
+    queryset = RoomReservation.objects.all()
+    serializer_class = RoomReservationSerializer
+
+
