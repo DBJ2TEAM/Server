@@ -183,15 +183,13 @@ class StudentAppointmentViewSet(viewsets.ViewSet):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     serializer_class = AppointmentSerializer
     def list_by_professor(self, request, professor_id):
-        if hasattr(request.user, 'student'):
-            appointments = Appointment.objects.filter(professor_id=professor_id, status='APPROVED')
-        elif hasattr(request.user, 'professor'):
-            appointments = Appointment.objects.filter(professor_id=professor_id)
-        else:
-            return Response({"message": "유효하지 않은 사용자입니다."}, status=status.HTTP_401_UNAUTHORIZED)
-
+        appointments = Appointment.objects.filter(professor_id=professor_id )
         serializer = AppointmentSerializer(appointments, many=True)
         return Response(serializer.data)
+    def list_by_professor_s(self, request, professor_id):
+        appointments = Appointment.objects.filter(professor_id=professor_id , status="APPROVED")
+        serializer = AppointmentSerializer(appointments, many=True)
+        return Response(serializer.data)    
 
 
 class RoomViewSet(viewsets.ModelViewSet):
