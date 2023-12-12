@@ -3,7 +3,7 @@ from rest_framework.routers import DefaultRouter
 from . import views
 from .views import (
     login_view, LogoutView, RegisterStudentView, RegisterProfessorView, RegisterAssistantView, login2_view,
-    professor_list, delete_professor, refresh_token
+    professor_list, delete_professor, refresh_token, EquipmentViewSet, ReservationViewSet
 )
 from rest_framework.authtoken.views import obtain_auth_token
 from .views import StudentAppointmentViewSet,RoomViewSet, RoomTimetableViewSet, RoomReservationViewSet
@@ -11,6 +11,8 @@ from .views import StudentAppointmentViewSet,RoomViewSet, RoomTimetableViewSet, 
 router = DefaultRouter()
 router.register('students', views.StudentViewSet)  # 학생 정보
 router.register('professors', views.ProfessorViewSet)  # 교수 정보
+router.register(r'equipment', EquipmentViewSet, basename='equipment')
+router.register(r'reservations', ReservationViewSet, basename='reservation')
 
 router.register(r'student-appointments', StudentAppointmentViewSet, basename='student-appointment')  # 학생 예약 정보
  # 교수 예약 정보
@@ -31,7 +33,9 @@ urlpatterns = [
     path('profile/', views.profile, name='profile'),  # 프로필 정보
     path('professors_list/', professor_list, name='professor-list'),  # 교수 정보 리스트
     path('api/professors/<int:professor_id>/delete/', delete_professor, name='delete_professor'),  # 교수 계정 삭제
-     path('student-appointment/<int:pk>/', StudentAppointmentViewSet.as_view({'put': 'update', 'patch': 'update'}), name='student-appointment-detail'),
-    path('student-appointment/professor/<int:professor_id>', StudentAppointmentViewSet.as_view({'get': 'list_by_professor'}), name='professor-appointments-by-professor'),
+    path('student-appointment/<int:pk>/', StudentAppointmentViewSet.as_view({'put': 'update', 'patch': 'update'}), name='student-appointment-detail'),
+    path('student-appointment/professor/<int:professor_id>', StudentAppointmentViewSet.as_view({'get': 'list_by_professor'}), name='professor-appointments-by-professor'), #
     path('student-appointment/professor_s/<int:professor_id>', StudentAppointmentViewSet.as_view({'get': 'list_by_professor_s'}), name='professor-appointments-by-professor'),
+    path('reservation/by-equipment/', ReservationViewSet.as_view({'get': 'list_by_equipment'}), name='reservations-by-equipment'),
+    path('reservation/approved/by-equipment/', ReservationViewSet.as_view({'get': 'list_approved_by_equipment'}), name='approved-reservations-by-equipment'),
 ]
