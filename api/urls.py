@@ -6,15 +6,18 @@ from .views import (
     professor_list, delete_professor, refresh_token
 )
 from rest_framework.authtoken.views import obtain_auth_token
-from .views import StudentAppointmentViewSet, ProfessorAppointmentViewSet
+from .views import StudentAppointmentViewSet,RoomViewSet, RoomTimetableViewSet, RoomReservationViewSet
 
 router = DefaultRouter()
 router.register('students', views.StudentViewSet)  # 학생 정보
 router.register('professors', views.ProfessorViewSet)  # 교수 정보
 
 router.register(r'student-appointments', StudentAppointmentViewSet, basename='student-appointment')  # 학생 예약 정보
-router.register(r'professor-appointments', ProfessorAppointmentViewSet, basename='professor-appointment')  # 교수 예약 정보
+ # 교수 예약 정보
 
+router.register('rooms', RoomViewSet)
+router.register('timetables', RoomTimetableViewSet)
+router.register('reservations', RoomReservationViewSet)
 urlpatterns = [
     path('', include(router.urls)),  # 라우터 URL 포함
     path('api-token-auth/', obtain_auth_token, name='api_token_auth'),  # 인증 토큰 얻기
@@ -28,6 +31,7 @@ urlpatterns = [
     path('profile/', views.profile, name='profile'),  # 프로필 정보
     path('professors_list/', professor_list, name='professor-list'),  # 교수 정보 리스트
     path('api/professors/<int:professor_id>/delete/', delete_professor, name='delete_professor'),  # 교수 계정 삭제
-    path('appointments/professor/<int:professor_id>', ProfessorAppointmentViewSet.as_view({'get': 'list_by_professor'}), name='professor-appointments-by-professor'),
-    path('appointments/timetable/professor/<int:professor_id>',ProfessorAppointmentViewSet.as_view({'get': 'list_timetable_by_professor'}), name='professor-appointments-by-timetable'),
+     path('student-appointment/<int:pk>/', StudentAppointmentViewSet.as_view({'put': 'update', 'patch': 'update'}), name='student-appointment-detail'),
+    
+
 ]
