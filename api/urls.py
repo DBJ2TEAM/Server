@@ -28,4 +28,5 @@ urlpatterns = [
     path('profile/', views.profile, name='profile'),  # 프로필 정보
     path('professors_list/', professor_list, name='professor-list'),  # 교수 정보 리스트
     path('api/professors/<int:professor_id>/delete/', delete_professor, name='delete_professor'),  # 교수 계정 삭제
+    path('professor-appointments/professor/<int:professor_id>', ProfessorAppointmentViewSet.as_view({'get': 'list_by_professor'}), name='professor-appointments-by-professor'),
 ]
