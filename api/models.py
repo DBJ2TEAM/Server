@@ -83,3 +83,24 @@ class RoomReservation(models.Model):
         ).exists()
 
         return existing_reservation
+    
+class Equipment(models.Model):
+    name = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.name
+    
+class Reservation(models.Model):
+    STATUS_CHOICES = (
+        ('REQUESTED', 'Requested'),
+        ('APPROVED', 'Approved'),
+        ('REJECTED', 'Rejected'),
+    )
+
+    equipment = models.ForeignKey(Equipment, on_delete=models.CASCADE)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='REQUESTED')
+    day = models.CharField(max_length=10)  # 요일을 문자열로 저장 (예: Monday)
+    time = models.CharField(max_length=10)  # 시간을 문자열로 저장 (예: 11:00)
+
+    def __str__(self):
+        return f'{self.equipment.name} - {self.day} {self.time} - {self.status}'

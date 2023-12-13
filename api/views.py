@@ -12,8 +12,8 @@ from django.contrib.auth import logout
 from django.shortcuts import redirect, get_object_or_404
 from datetime import timedelta
 from django.db.models import Q
-from .models import Student, Professor,  Appointment,Room, RoomTimetable, RoomReservation
-from .serializers import  AppointmentSerializer,RoomSerializer, RoomTimetableSerializer, RoomReservationSerializer
+from .models import Student, Professor,  Appointment,Room, RoomTimetable, RoomReservation, Equipment, Reservation
+from .serializers import  AppointmentSerializer,RoomSerializer, RoomTimetableSerializer, RoomReservationSerializer, ReservationSerializer, EquipmentSerializer
 from rest_framework.decorators import action
 
 from rest_framework.authtoken.models import Token
@@ -33,6 +33,14 @@ class StudentViewSet(viewsets.ModelViewSet):
 class ProfessorViewSet(viewsets.ModelViewSet):
     queryset = Professor.objects.all()
     serializer_class = ProfessorSerializer
+
+class EquipmentViewSet(viewsets.ModelViewSet):
+    queryset = Equipment.objects.all()
+    serializer_class = EquipmentSerializer
+
+class ReservationViewSet(viewsets.ModelViewSet):
+    queryset = Reservation.objects.all()
+    serializer_class = ReservationSerializer
 
 
 class RegisterStudentView(APIView):
@@ -98,7 +106,7 @@ def login_view(request):
         elif hasattr(user, 'professor'):
             return Response({'role': 'professor', 'refresh': str(refresh), 'access': str(refresh.access_token), 'id': user.professor.id})
         elif hasattr(user, 'assistant'):  # Add handling for Assistant
-            return Response({'role': 'assistant', 'refresh': str(refresh), 'access': str(refresh.access_token)})
+            return Response({'role': 'assistant', 'refresh': str(refresh), 'access': str(refresh.access_token), 'id': user.assistant.id})
         else:
             return Response({'role': '알 수 없음', 'refresh': str(refresh), 'access': str(refresh.access_token)})
     else:
@@ -194,7 +202,43 @@ class StudentAppointmentViewSet(viewsets.ViewSet):
     def list_by_professor_s(self, request, professor_id):
         appointments = Appointment.objects.filter(professor_id=professor_id , status="APPROVED")
         serializer = AppointmentSerializer(appointments, many=True)
-        return Response(serializer.data)    
+        return Response(serializer.data)  
+    
+class ReservationViewSet(viewsets.ViewSet):
+    serializer_class = ReservationSerializer  # ReservationSerializer를 정의해야 합니다.
+
+    def list(self, request):
+        reservations = Reservation.objects.all()
+        serializer = self.serializer_class(reservations, many=True)
+        return Response(serializer.data)
+
+    def create(self, request):
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid():
+            serializer.save(status='REQUESTED')
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def update(self, request, pk=None):
+        reservation = Reservation.objects.get(pk=pk)
+        serializer = self.serializer_class(reservation, data=request.data, partial=True)
+        if serializer.is_valid():
+            if 'status' in request.data and request.data['status'] == 'APPROVED':
+                serializer.save(status='APPROVED')
+            else:
+                serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def list_by_equipment(self, request):
+        reservations = Reservation.objects.filter(Q(status="APPROVED") | Q(status="REQUESTED"))
+        serializer = self.serializer_class(reservations, many=True)
+        return Response(serializer.data)
+
+    def list_approved_by_equipment(self, request):
+        reservations = Reservation.objects.filter(status="APPROVED")
+        serializer = self.serializer_class(reservations, many=True)
+        return Response(serializer.data)
 
 
 class RoomViewSet(viewsets.ModelViewSet):
@@ -208,5 +252,3 @@ class RoomTimetableViewSet(viewsets.ModelViewSet):
 class RoomReservationViewSet(viewsets.ModelViewSet):
     queryset = RoomReservation.objects.all()
     serializer_class = RoomReservationSerializer
-
-
