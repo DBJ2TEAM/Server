@@ -230,13 +230,13 @@ class ReservationViewSet(viewsets.ViewSet):
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def list_by_equipment(self, request):
-        reservations = Reservation.objects.filter(Q(status="APPROVED") | Q(status="REQUESTED"))
+    def list_by_equipment(self, request, equipment_id):
+        reservations = Reservation.objects.filter(equipment_id=equipment_id, status__in=["APPROVED", "REQUESTED"])
         serializer = self.serializer_class(reservations, many=True)
         return Response(serializer.data)
 
-    def list_approved_by_equipment(self, request):
-        reservations = Reservation.objects.filter(status="APPROVED")
+    def list_approved_by_equipment(self, request, equipment_id):
+        reservations = Reservation.objects.filter(equipment_id=equipment_id, status="APPROVED")
         serializer = self.serializer_class(reservations, many=True)
         return Response(serializer.data)
 
