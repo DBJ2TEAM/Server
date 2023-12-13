@@ -36,6 +36,6 @@ urlpatterns = [
     path('student-appointment/<int:pk>/', StudentAppointmentViewSet.as_view({'put': 'update', 'patch': 'update'}), name='student-appointment-detail'),
     path('student-appointment/professor/<int:professor_id>', StudentAppointmentViewSet.as_view({'get': 'list_by_professor'}), name='professor-appointments-by-professor'), #
     path('student-appointment/professor_s/<int:professor_id>', StudentAppointmentViewSet.as_view({'get': 'list_by_professor_s'}), name='professor-appointments-by-professor'),
-    path('reservation/by-equipment/', ReservationViewSet.as_view({'get': 'list_by_equipment'}), name='reservations-by-equipment'),
-    path('reservation/approved/by-equipment/', ReservationViewSet.as_view({'get': 'list_approved_by_equipment'}), name='approved-reservations-by-equipment'),
+    path('student-appointment/reservation/by-equipment/', ReservationViewSet.as_view({'get': 'list_by_equipment'}), name='reservations-by-equipment'),
+    path('student-appointment/reservation/approved/by-equipment/', ReservationViewSet.as_view({'get': 'list_approved_by_equipment'}), name='approved-reservations-by-equipment'),
 ]
