@@ -173,6 +173,11 @@ class StudentAppointmentViewSet(viewsets.ViewSet):
 
     def update(self, request, pk=None):
         appointment = Appointment.objects.get(pk=pk)
+        
+        if 'status' in request.data and request.data['status'] == 'REJECTED':
+            appointment.delete()  # 승인 거절 시 상담 신청 삭제
+            return Response({"message": "승인이 거절되어 상담 신청이 삭제되었습니다."})
+        
         serializer = AppointmentSerializer(appointment, data=request.data, partial=True)
         if serializer.is_valid():
             if 'status' in request.data and request.data['status'] == 'APPROVED':
