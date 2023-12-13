@@ -90,4 +90,4 @@ class Reservation(models.Model):
     time = models.CharField(max_length=10)  # 시간을 문자열로 저장 (예: 11:00)
 
     def __str__(self):
-        return f'{self.equipment.name} - {self.day} {self.time} - {self.status}'
+        return f'{self.receiver.name} - {self.day} {self.time} - {self.status}'
