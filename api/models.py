@@ -83,6 +83,8 @@ class Reservation(models.Model):
         ('REJECTED', 'Rejected'),
     )
 
+    requester = models.ForeignKey(Student, on_delete=models.CASCADE, null=True, blank=True)
+    receiver = models.ForeignKey(Assistant, on_delete=models.CASCADE, null=True, blank=True)
     equipment = models.ForeignKey(Equipment, on_delete=models.CASCADE)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='REQUESTED')
     day = models.CharField(max_length=10)  # 요일을 문자열로 저장 (예: Monday)
