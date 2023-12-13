@@ -6,7 +6,7 @@ from .views import (
     professor_list, delete_professor, refresh_token, EquipmentViewSet, ReservationViewSet
 )
 from rest_framework.authtoken.views import obtain_auth_token
-from .views import StudentAppointmentViewSet,RoomViewSet, RoomTimetableViewSet, RoomReservationViewSet
+from .views import StudentAppointmentViewSet,RoomReservationViewSet,RoomViewSet
 
 router = DefaultRouter()
 router.register('students', views.StudentViewSet)  # 학생 정보
@@ -16,10 +16,8 @@ router.register(r'reservations', ReservationViewSet, basename='reservation')
 
 router.register(r'student-appointments', StudentAppointmentViewSet, basename='student-appointment')  # 학생 예약 정보
  # 교수 예약 정보
-
-router.register('rooms', RoomViewSet)
-router.register('timetables', RoomTimetableViewSet)
-router.register('reservations', RoomReservationViewSet)
+router.register(r'roomreservations', RoomReservationViewSet, basename='roomreservations')
+router.register(r'room', RoomViewSet, basename='room')
 urlpatterns = [
     path('', include(router.urls)),  # 라우터 URL 포함
     path('api-token-auth/', obtain_auth_token, name='api_token_auth'),  # 인증 토큰 얻기
@@ -34,8 +32,11 @@ urlpatterns = [
     path('professors_list/', professor_list, name='professor-list'),  # 교수 정보 리스트
     path('api/professors/<int:professor_id>/delete/', delete_professor, name='delete_professor'),  # 교수 계정 삭제
      path('student-appointment/<int:pk>/', StudentAppointmentViewSet.as_view({'put': 'update', 'patch': 'update'}), name='student-appointment-detail'),
-    path('student-appointment/professor/<int:professor_id>', StudentAppointmentViewSet.as_view({'get': 'list_by_professor'}), name='professor-appointments-by-professor'),
-    path('student-appointment/professor_s/<int:professor_id>', StudentAppointmentViewSet.as_view({'get': 'list_by_professor_s'}), name='professor-appointments-by-professor'),
-    path('student-appointment/reservation/by-equipment/<int:equipment_id>/', ReservationViewSet.as_view({'get': 'list_by_equipment'}), name='reservations-by-equipment'),
-    path('student-appointment/reservation/approved/by-equipment/<int:equipment_id>/', ReservationViewSet.as_view({'get': 'list_approved_by_equipment'}), name='approved-reservations-by-equipment'),
+    path('student-appointment/professor/<int:receiver_id>', StudentAppointmentViewSet.as_view({'get': 'list_by_professor'}), name='professor-appointments-by-professor'),
+    path('student-appointment/professor_s/<int:receiver_id>', StudentAppointmentViewSet.as_view({'get': 'list_by_professor_s'}), name='professor-appointments-by-professor'),
+    path('reservation/by-equipment/', ReservationViewSet.as_view({'get': 'list_by_equipment'}), name='reservations-by-equipment'),
+    path('reservation/approved/by-equipment/', ReservationViewSet.as_view({'get': 'list_approved_by_equipment'}), name='approved-reservations-by-equipment'),
+    path('roomreservation/<int:pk>/', RoomReservationViewSet.as_view({'put': 'update', 'patch': 'update'}), name='Room-reservation-detail'),
+     path('roomreservation/student/<int:requester_id>', RoomReservationViewSet.as_view({'get': 'list_by_student'}), name=''), #학생입장이 예약한 룸예약리스트
+     path('roomreservation/assistant/<int:receiver_id>', RoomReservationViewSet.as_view({'get': 'list_by_assistant'}), name=''),
 ]

@@ -12,8 +12,8 @@ from django.contrib.auth import logout
 from django.shortcuts import redirect, get_object_or_404
 from datetime import timedelta
 from django.db.models import Q
-from .models import Student, Professor,  Appointment,Room, RoomTimetable, RoomReservation, Equipment, Reservation
-from .serializers import  AppointmentSerializer,RoomSerializer, RoomTimetableSerializer, RoomReservationSerializer, ReservationSerializer, EquipmentSerializer
+from .models import Student, Professor,  Appointment,Room, Equipment, Reservation,RoomReservation
+from .serializers import  AppointmentSerializer , ReservationSerializer, EquipmentSerializer,RoomReservationSerializer,RoomSerializer
 from rest_framework.decorators import action
 
 from rest_framework.authtoken.models import Token
@@ -195,12 +195,12 @@ class StudentAppointmentViewSet(viewsets.ViewSet):
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     serializer_class = AppointmentSerializer
-    def list_by_professor(self, request, professor_id):
-        appointments = Appointment.objects.filter(professor_id=professor_id )
+    def list_by_professor(self, request, receiver_id):
+        appointments = Appointment.objects.filter(receiver_id=receiver_id )
         serializer = AppointmentSerializer(appointments, many=True)
         return Response(serializer.data)
-    def list_by_professor_s(self, request, professor_id):
-        appointments = Appointment.objects.filter(professor_id=professor_id , status="APPROVED")
+    def list_by_professor_s(self, request, receiver_id):
+        appointments = Appointment.objects.filter(receiver_id=receiver_id , status="APPROVED")
         serializer = AppointmentSerializer(appointments, many=True)
         return Response(serializer.data)  
     
@@ -230,13 +230,13 @@ class ReservationViewSet(viewsets.ViewSet):
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def list_by_equipment(self, request, equipment_id):
-        reservations = Reservation.objects.filter(equipment_id=equipment_id, status__in=["APPROVED", "REQUESTED"])
+    def list_by_equipment(self, request):
+        reservations = Reservation.objects.filter(Q(status="APPROVED") | Q(status="REQUESTED"))
         serializer = self.serializer_class(reservations, many=True)
         return Response(serializer.data)
 
-    def list_approved_by_equipment(self, request, equipment_id):
-        reservations = Reservation.objects.filter(equipment_id=equipment_id, status="APPROVED")
+    def list_approved_by_equipment(self, request):
+        reservations = Reservation.objects.filter(status="APPROVED")
         serializer = self.serializer_class(reservations, many=True)
         return Response(serializer.data)
 
@@ -245,10 +245,39 @@ class RoomViewSet(viewsets.ModelViewSet):
     queryset = Room.objects.all()
     serializer_class = RoomSerializer
 
-class RoomTimetableViewSet(viewsets.ModelViewSet):
-    queryset = RoomTimetable.objects.all()
-    serializer_class = RoomTimetableSerializer
+class RoomReservationViewSet(viewsets.ViewSet):
+    serializer_class = RoomReservationSerializer  
 
-class RoomReservationViewSet(viewsets.ModelViewSet):
-    queryset = RoomReservation.objects.all()
-    serializer_class = RoomReservationSerializer
+    def list(self, request):
+        roomreservations = RoomReservation.objects.all()
+        serializer = self.serializer_class(roomreservations, many=True)
+        return Response(serializer.data)
+
+    def create(self, request):
+        
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid():
+            serializer.save(status='REQUESTED')
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def update(self, request, pk=None):
+        roomreservation = RoomReservation.objects.get(pk=pk)
+        if 'status' in request.data and request.data['status'] == 'REJECTED':
+            roomreservation.delete()  # 승인 거절 시 상담 신청 삭제
+            return Response({"message": "승인이 거절되어 상담 신청이 삭제되었습니다."})
+        serializer = self.serializer_class(roomreservation, data=request.data, partial=True)
+        if serializer.is_valid():
+            if 'status' in request.data and request.data['status'] == 'APPROVED':
+                serializer.save(status='APPROVED')
+            else:
+                serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def list_by_student(self, request, requester_id):
+        roomreservations = RoomReservation.objects.filter(requester_id=requester_id ,status="APPROVED" )
+        serializer = RoomReservationSerializer(roomreservations, many=True)
+        return Response(serializer.data)
+    def list_by_assistant(self, request, receiver_id):
+        roomreservations = RoomReservation.objects.filter(receiver_id=receiver_id)
+        serializer = RoomReservationSerializer(roomreservations, many=True)
+        return Response(serializer.data)

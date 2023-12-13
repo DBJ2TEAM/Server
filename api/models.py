@@ -39,9 +39,9 @@ class Appointment(models.Model):
         ('APPROVED', 'Approved'),
         ('REJECTED', 'Rejected'),
     )
-
-    student = models.ForeignKey(Student, on_delete=models.CASCADE)
-    professor = models.ForeignKey(Professor, on_delete=models.CASCADE)
+    
+    requester = models.ForeignKey(Student, on_delete=models.CASCADE,null=True)
+    receiver = models.ForeignKey(Professor, on_delete=models.CASCADE,null=True)
     time = models.CharField(max_length=10,null=True)  # time 필드를 문자열 형식으로 변경
     day = models.CharField(max_length=20,null=True)  # day 필드 추가
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='REQUESTED')
@@ -54,35 +54,21 @@ class Room(models.Model):
     def __str__(self):
         return self.name
     
-class RoomTimetable(models.Model):
-    day = models.CharField(max_length=20)
-    start_time = models.TimeField()
-    end_time = models.TimeField()
-
-    def __str__(self):
-        return f"{self.day} {self.start_time} - {self.end_time}"
-
 class RoomReservation(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    STATUS_CHOICES = (
+        ('REQUESTED', 'Requested'),
+        ('APPROVED', 'Approved'),
+        ('REJECTED', 'Rejected'),
+    )
+    requester = models.ForeignKey(Student, on_delete=models.CASCADE, null=True)
+    receiver = models.ForeignKey(Assistant, on_delete=models.CASCADE, null=True)
     room = models.ForeignKey(Room, on_delete=models.CASCADE)
-    timetable = models.ForeignKey(RoomTimetable, on_delete=models.CASCADE)
-    status = models.CharField(max_length=20)
-    start_time = models.DateTimeField()
-    end_time = models.DateTimeField()
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='REQUESTED')
+    day = models.CharField(max_length=10 , null=True)  # 요일을 문자열로 저장 (예: Monday)
+    time = models.CharField(max_length=10,null=True)  # 시간을 문자열로 저장 (예: 11:00)
 
     def __str__(self):
-        return f"Reservation: {self.room} - {self.start_time} to {self.end_time}"
-
-    def is_overlapping(self):
-        existing_reservation = RoomReservation.objects.filter(
-            Q(room=self.room) & Q(timetable=self.timetable) &
-            (
-                Q(start_time__lt=self.end_time, end_time__gt=self.start_time) |
-                Q(start_time__gte=self.end_time, end_time__lte=self.start_time)
-            )
-        ).exists()
-
-        return existing_reservation
+        return f'{self.room.name} - {self.day} {self.time} - {self.status}'
     
 class Equipment(models.Model):
     name = models.CharField(max_length=255)
